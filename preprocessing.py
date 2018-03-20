@@ -151,7 +151,12 @@ class BatchGenerator(Sequence):
         b_batch = np.zeros((r_bound - l_bound, 1     , 1     , 1    ,  self.config['TRUE_BOX_BUFFER'], 4))   # list of self.config['TRUE_self.config['BOX']_BUFFER'] GT boxes
         y_batch = np.zeros((r_bound - l_bound, self.config['GRID_H'],  self.config['GRID_W'], self.config['BOX'], 4+1+self.config['CLASS']))                # desired network output
 
-        for train_instance in self.images[l_bound:r_bound]:
+        while instance_count < self.config['BATCH_SIZE']:
+            training_instance = self.images[l_bound]
+            l_bound += 1
+            if l_bound >= r_bound:
+                l_bound = r_bound - 1
+              
             # augment input image and fix object's position and size
             img, all_objs = self.aug_image(train_instance, jitter=self.jitter)
             if img is None:
@@ -223,9 +228,7 @@ class BatchGenerator(Sequence):
 
             # increase instance counter in current batch
             instance_count += 1  
-
-        #print ' new batch created', idx
-
+       
         return [x_batch, b_batch], y_batch
 
     def on_epoch_end(self):
