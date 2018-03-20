@@ -154,8 +154,8 @@ class BatchGenerator(Sequence):
         while instance_count < self.config['BATCH_SIZE']:
             train_instance = self.images[l_bound]
             l_bound += 1
-            if l_bound >= r_bound:
-                l_bound = r_bound - 1
+            if l_bound >= len(self.images):
+                l_bound = 0
               
             # augment input image and fix object's position and size
             img, all_objs = self.aug_image(train_instance, jitter=self.jitter)
