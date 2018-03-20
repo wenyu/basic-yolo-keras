@@ -152,7 +152,7 @@ class BatchGenerator(Sequence):
         y_batch = np.zeros((r_bound - l_bound, self.config['GRID_H'],  self.config['GRID_W'], self.config['BOX'], 4+1+self.config['CLASS']))                # desired network output
 
         while instance_count < self.config['BATCH_SIZE']:
-            training_instance = self.images[l_bound]
+            train_instance = self.images[l_bound]
             l_bound += 1
             if l_bound >= r_bound:
                 l_bound = r_bound - 1
