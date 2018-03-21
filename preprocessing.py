@@ -281,6 +281,21 @@ class BatchGenerator(Sequence):
         all_objs = copy.deepcopy(train_instance['object'])
 
         if jitter:
+            ### imgaug pipeline
+            det = self.aug_pipe.to_deterministic()
+            bbox = map(lambda obj: ia.BoundingBox(obj['xmin'], obj['ymin'], obj['xmax'], obj['ymax']), all_objs)
+            bbox = ia.BoundingBoxesOnImage(bbox, shape=image.shape)
+            image = det.augment_image(image)
+            bbox = det.augment_bounding_boxes([bbox])[0]
+            all_objs = map(lambda (obj, box): {
+                'name': obj['name'],
+                'xmin': box.x1,
+                'ymin': box.y1,
+                'xmax': box.x2,
+                'ymax': box.y2
+            }, zip(all_objs, bbox.bounding_boxes))
+
+
             ### scale the image
             scale = np.random.uniform() / 10. + 1.
             image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
@@ -297,7 +312,7 @@ class BatchGenerator(Sequence):
             flip = np.random.binomial(1, .5)
             if flip > 0.5: image = cv2.flip(image, 1)
 
-            image = self.aug_pipe.augment_image(image)
+
 
         # resize the image to standard size
         image = cv2.resize(image, (self.config['IMAGE_H'],
